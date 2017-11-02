@@ -1,0 +1,26 @@
+###########################################################
+##                                                       ##
+##                                                       ##
+##                                                       ##
+##                                                       ##
+##                                                       ##
+##                                                       ##
+##                                                       ##
+###########################################################
+
+This is my attempt at making video poker simulations/analysis.
+The base was taken from Eric Farmer-s Video Poker, but in the end I will be 
+re-writing every part of code due to some specific needs.
+
+This should be used to find RTP (return %) of poker games (it's Math tool, not a game with GUI).
+One mode will be Monte-Carlo simulation (random cards and do it for many many times),
+but more usefull to me is analysis by constructing every possible video poker game.  
+In video poker only the first 10 cards can have effect on game outcome, 5 are in first hand
+and max 5 more if all 5 from first hand are discarded.
+
+I have to re-write all the code because I need to impliment many different variants of video poker.
+For example, the code used in Eric Farmer-s video poker has no Joker cards, that are needed for
+some video poker variants.
+
+For now card deck is standard 52 cards, but I will add Jokers (1-4) in the future.
+
