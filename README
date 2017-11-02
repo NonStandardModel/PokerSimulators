@@ -24,3 +24,10 @@ some video poker variants.
 
 For now card deck is standard 52 cards, but I will add Jokers (1-4) in the future.
 
+TODO:
+ -add Joker cards to the deck (find best way to represent Joker cards)
+ -write custom hand_eveluator function (adding Jokers changes many things)
+ -write custom get_discard_cards function and impliment different strategies (perfect, standard, simple...)
+ -make it faster (it must be less than a day to do the analysis [all possible plays])
+ -do a research if it would be faster by creating big look-up-tables
+
