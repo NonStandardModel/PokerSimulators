@@ -5,12 +5,15 @@
 // Video Poker RTP analasys
 // TODO:-add set deck method to VideoPoker class
 //	-add Joker cards and Joker related wins to VideoPoker class  (? all bits 1 -> 2**17 - 1 = 131071 ?)
+//	-write custom hand eveluator function
+//	-write custom get_discard_cards function for different strategies (perfect, standard, basic, idiot...)
 
 #include "VideoPoker.h"
 //#include <stdlib.h> //do I need this?
 //#include <stdio.h> //do I need this?
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -20,6 +23,11 @@ vector<int> game_combination; //max 10 cards are needed (depends on num. of hold
 
 // No-Win, One_Pair, Two_Pair, Three_Of_A_Kind, Straight, Flush, Full_House, Four_Of_A_Kind, Straight_Flush, Royal_Flush
 int PAY_TABLE[10] = {0, 1, 2, 3, 4, 6, 9, 25, 50, 500};
+
+////Read pay_table from file
+//ifstream paytable_file ("PayTable.txt");
+
+
 
 void pretty_print(const vector<int>& v) {
   static int count = 0;
