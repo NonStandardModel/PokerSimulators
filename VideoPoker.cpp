@@ -306,6 +306,7 @@ int Video_Poker::MZ_Rank_hand(const int hand[]) {
 	int hand_suits = count_high_bits(OR & mask_suite);
 	int hand_values = count_high_bits(OR & mask_value);
 
+	/// make sure that the correct rank is returned (best rank)... for now it isn't important, but leter this can cause strange "bugs"
 	switch (OR & mask_value) {
 		case 31:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 2-3-4-5-6
 				else {return STRAIGHT;}
@@ -337,6 +338,25 @@ int Video_Poker::MZ_Rank_hand(const int hand[]) {
 		case 4111:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // A-2-3-4-5
 				else {return STRAIGHT;}
 				break;
+		default:	if (hand_suits == 1) {return FLUSH;} // if we have only one suite and is none of the above -> it must be FLUSH
+				break;
+	}
+
+	switch (count_high_bits(OR & mask_value)) {
+		case 5:	return NO_WIN; // NO-WIN or STRAIGHT or FLUSH ... flush and straight are covered above
+			break;
+		case 4: return ONE_PAIR; // 1-PAIR
+			break;
+		case 3: for (int c1 = 0; c1 < 3; c1++) { // 2-PAIR or TRIS
+				for (int c2 = c1 + 1; c2 < 4; c2++) {
+					for (int c3 = c2 + 1; c3 < 5; c3++) {
+						if (count_high_bits((hand[c1] | hand[c2] | hand[c3]) & mask_value) == 1) {return TRIS;}
+					}
+				}
+			}
+			return TWO_PAIR;
+		case 2: // FULL-HOUSE or POKER
+		//case 1: // JOKER COMBOS?
 	}
 		
 }
