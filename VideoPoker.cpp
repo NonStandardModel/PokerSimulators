@@ -306,27 +306,37 @@ int Video_Poker::MZ_Rank_hand(const int hand[]) {
 	int hand_suits = count_high_bits(OR & mask_suite);
 	int hand_values = count_high_bits(OR & mask_value);
 
-	if (hand_suits == 1) { // only one suite in hand -> FLUSH (any kind)
-		switch (OR & mask_value) {
-		case 31:	return STRAIGHT_FLUSH;
+	switch (OR & mask_value) {
+		case 31:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 2-3-4-5-6
+				else {return STRAIGHT;}
 				break;
-		case 62:	return STRAIGHT_FLUSH;
+		case 62:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 3-4-5-6-7
+				else {return STRAIGHT;}
 				break;
-		case 124:	return STRAIGHT_FLUSH;
+		case 124:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 4-5-6-7-8
+				else {return STRAIGHT;}
 				break;
-		case 248:	return STRAIGHT_FLUSH;
+		case 248:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 5-6-7-8-9
+				else {return STRAIGHT;}
 				break;
-		case 496:	return STRAIGHT_FLUSH;
+		case 496:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 6-7-8-9-10
+				else {return STRAIGHT;}
 				break;
-		case 992:	return STRAIGHT_FLUSH;
+		case 992:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 7-8-9-10-J
+				else {return STRAIGHT;}
 				break;
-		case 1984:	return STRAIGHT_FLUSH;
+		case 1984:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 8-9-10-J-Q
+				else {return STRAIGHT;}
 				break;
-		case 3968:	return STRAIGHT_FLUSH;
+		case 3968:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 9-10-J-Q-K
+				else {return STRAIGHT;}
 				break;
-		case 7936:	return ROYAL_FLUSH;
+		case 7936:	if (hand_suits == 1) {return ROYAL_FLUSH;} // 10-J-Q-K-A
+				else {return STRAIGHT;}
 				break;
-		}
+		case 4111:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // A-2-3-4-5
+				else {return STRAIGHT;}
+				break;
 	}
 		
 }
