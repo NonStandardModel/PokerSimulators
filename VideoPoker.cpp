@@ -297,7 +297,11 @@ void Video_Poker::print_bits(int x){
 	std::cout << std::endl;
 }
 
+
 int Video_Poker::MZ_Rank_hand(const int hand[]) {
+
+	int NO_WIN = 0, ONE_PAIR = 1, TWO_PAIR =  2, TRIS = 3, STRAIGHT = 4, FLUSH = 5, FULL = 6, POKER = 7, STRAIGHT_FLUSH = 8, ROYAL_FLUSH = 9;
+
 	int mask_value = ((2 << 13) - 1); // MOVE THIS OUT so it is not done each time
 	int mask_suite = ((2 << 17) - 1) ^ ((2 << 13) - 1); // MOVE THIS OUT
 	int OR = hand[0] | hand[1] | hand[2] | hand[3] | hand[4];
@@ -356,6 +360,14 @@ int Video_Poker::MZ_Rank_hand(const int hand[]) {
 			}
 			return TWO_PAIR;
 		case 2: // FULL-HOUSE or POKER
+		// if there is any hand subset of 4 cards that have the same bit high in value part
+		// we have a poker ... otherwise it is full-house
+			bool is_poker = false;
+//			for (int i = 0; i < 5; i++) {
+//				//construct all hand subsets of 4 cards ....
+//			}
+			if (is_poker) {return POKER;}
+			else {return FULL;}
 		//case 1: // JOKER COMBOS?
 	}
 		

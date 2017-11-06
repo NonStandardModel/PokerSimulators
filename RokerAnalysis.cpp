@@ -247,6 +247,19 @@ int main() {
 
 	//fill vector<int> card_deck with nums 1 -> 52
 	for (int i = 0; i < tot_cards; ++i) { card_deck.push_back(i+1); }
+
+	////Read pay_table from file
+//	string line;
+//	ifstream paytable_file ("PayTable.txt");
+//	if (paytable_file.is_open()) {
+//		while (getline(paytable_file, line)) {
+//			cout << line << '\n';
+//		}
+//		paytable_file.close();
+//	} else {cout << "Unable to open file";}
+
+
+
 	//
 //	combination_constructer(0, needed_cards);
 //	my_combination_constructer(0, needed_cards);
