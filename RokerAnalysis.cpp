@@ -258,6 +258,10 @@ int main() {
 //		paytable_file.close();
 //	} else {cout << "Unable to open file";}
 
+	ofstream log_file;
+	log_file.open("error_log.txt");
+	
+
 
 
 	//
@@ -278,44 +282,53 @@ int main() {
 	//int RTP = TOT_PRIZE / TOT_GAMES
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//	int myDeck[needed_cards];
-//	int HAND[5];
-//	int totGames = 0;
-//	int totPrize = 0;
-//	int PRIZE = 0;
-//	int RANK;
-//	int discardCode = 0;
-//	int num_dis_cards = 0;
-//	int wins = 0;
-//	Video_Poker ViP(11);
+	int myDeck[needed_cards];
+	int HAND[5];
+	int totGames = 0;
+	int totPrize = 0;
+	int PRIZE = 0;
+	int RANK, RANK_MZ;
+	int discardCode = 0;
+	int num_dis_cards = 0;
+	int wins = 0;
+	Video_Poker ViP(11);
 
-//	// this are here for analysis purposes
-//	int rank_count[10]; //from HighCard = 0 to RoyalFlush = 9
-//	int num_discard_rank[10][5]; // how many cards are discarded by rank
+	// this are here for analysis purposes
+	int rank_count[10]; //from HighCard = 0 to RoyalFlush = 9
+	int num_discard_rank[10][5]; // how many cards are discarded by rank
 
-//	for(int i1 = 0; i1 <= card_deck.size()-needed_cards; i1++) {
-//		for (int i2 = i1+1; i2 <= card_deck.size()-needed_cards+1; i2++) {
-//			for (int i3 = i2+1; i3 <= card_deck.size()-needed_cards+2; i3++) {
-//				for (int i4 = i3+1; i4 <= card_deck.size()-needed_cards+3; i4++) {
-//					for (int i5 = i4+1; i5 <= card_deck.size()-needed_cards+4; i5++) {
-//						cout << "[" << i1 << " " << i2 << " " << i3 << " " << i4 << " " << i5 << "]\n";
-//						myDeck[0] = int_to_card(i1 + 1);
-//						myDeck[1] = int_to_card(i2 + 1);
-//						myDeck[2] = int_to_card(i3 + 1);
-//						myDeck[3] = int_to_card(i4 + 1);
-//						myDeck[4] = int_to_card(i5 + 1);
-//						ViP.set_deck(myDeck, sizeof(myDeck)/sizeof(*myDeck));
-//						construct_remaining_deck(i1, i2, i3, i4, i5);
-//						discardCode = ViP.Evaluate_Hand(PAY_TABLE);
-//						//DO THE PERMUTATIONS HERE
-//						//ViP.Discard(discardCode);
-//						ViP.Get_Hand(HAND);
-//						RANK = ViP.Rank_Hand(HAND);
-//						PRIZE = PAY_TABLE[RANK];
-//						totPrize += PRIZE;
-//						totGames++;
-//						if (PRIZE > 0) {wins++;}
-//						rank_count[RANK]++;
+	for(int i1 = 0; i1 <= card_deck.size()-needed_cards; i1++) {
+		for (int i2 = i1+1; i2 <= card_deck.size()-needed_cards+1; i2++) {
+			for (int i3 = i2+1; i3 <= card_deck.size()-needed_cards+2; i3++) {
+				for (int i4 = i3+1; i4 <= card_deck.size()-needed_cards+3; i4++) {
+					for (int i5 = i4+1; i5 <= card_deck.size()-needed_cards+4; i5++) {
+						cout << "[" << i1 << " " << i2 << " " << i3 << " " << i4 << " " << i5 << "]\n";
+						myDeck[0] = int_to_card(i1 + 1);
+						myDeck[1] = int_to_card(i2 + 1);
+						myDeck[2] = int_to_card(i3 + 1);
+						myDeck[3] = int_to_card(i4 + 1);
+						myDeck[4] = int_to_card(i5 + 1);
+						ViP.set_deck(myDeck, sizeof(myDeck)/sizeof(*myDeck));
+						construct_remaining_deck(i1, i2, i3, i4, i5);
+						//discardCode = ViP.Evaluate_Hand(PAY_TABLE);
+						//DO THE PERMUTATIONS HERE
+						//ViP.Discard(discardCode);
+						ViP.Get_Hand(HAND);
+						RANK = ViP.Rank_Hand(HAND);
+						RANK_MZ = ViP.MZ_Rank_hand(HAND);
+						if (RANK != RANK_MZ) {
+							for (int i = 0; i < 5; i++) {
+								cout << HAND[i] << " ";
+								log_file << card_to_int(HAND[i]) << " ";
+							}
+							cout << RANK << " ... " << RANK_MZ << endl;
+							log_file << RANK << " ... " << RANK_MZ << "\n";
+						}
+						PRIZE = PAY_TABLE[RANK];
+						totPrize += PRIZE;
+						totGames++;
+						if (PRIZE > 0) {wins++;}
+						rank_count[RANK]++;
 //						num_dis_cards = 0;
 //						cout << discardCode << endl;
 //						for (int i = 0; i < 5; i++) {
@@ -325,226 +338,231 @@ int main() {
 //							cout << (1 << i) << endl;
 //						}
 //						num_discard_rank[RANK][num_dis_cards]++;
-//					}
-//				break;
-//				}
-//			break;
-//			}
-//		break;
-//		}
-//	break;
-//	}
+					}
+				//break;
+				}
+			//break;
+			}
+		//break;
+		}
+	break;
+	}
 
-//	cout << "Total prizes given: " << totPrize << endl;
-//	cout << "Total games played: " << totGames << endl;
-//	cout << "RTP: " << (double)totPrize/totGames << endl;
-//	cout << "Hit rate: " << (double)wins/totGames << endl;
-//	
-//	cout << "------------------------------------------\n";
-//	for (int i = 0; i < 10; i++) {
-//		cout << "Rank " << i << " occured " << rank_count[i] << " times.\n";
-//	}
-//	cout << "------------------------------------------\n";
-//	cout << "Num discarded cards vs hand rank analysis:\n";
-//	for (int i = 0; i < 10; i++) {
-//		cout << "Rank " << i << " -> ";
-//		for (int j = 0; j < 5; j++) {
-//			cout << num_discard_rank[i][j] << " ";
-//		}
-//		cout << "\n-------------------------------------\n";
-//	}
+	cout << "Total prizes given: " << totPrize << endl;
+	cout << "Total games played: " << totGames << endl;
+	cout << "RTP: " << (double)totPrize/totGames << endl;
+	cout << "Hit rate: " << (double)wins/totGames << endl;
+	
+	cout << "------------------------------------------\n";
+	for (int i = 0; i < 10; i++) {
+		cout << "Rank " << i << " occured " << rank_count[i] << " times.\n";
+	}
+	cout << "------------------------------------------\n";
+	cout << "Num discarded cards vs hand rank analysis:\n";
+	for (int i = 0; i < 10; i++) {
+		cout << "Rank " << i << " -> ";
+		for (int j = 0; j < 5; j++) {
+			cout << num_discard_rank[i][j] << " ";
+		}
+		cout << "\n-------------------------------------\n";
+	}
 
+	log_file.close();
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	int fake_deck[5];
-	//royal-flush
-//	fake_deck[0] = int_to_card(9);//10,1
-//	fake_deck[1] = int_to_card(10);//J,1
-//	fake_deck[2] = int_to_card(11);//Q,1
-//	fake_deck[3] = int_to_card(12);//K,1
-//	fake_deck[4] = int_to_card(13);//A,1
-	//straight-flush
-//	fake_deck[0] = int_to_card(1);//2,1
-//	fake_deck[1] = int_to_card(2);//3,1
-//	fake_deck[2] = int_to_card(3);//4,1
-//	fake_deck[3] = int_to_card(4);//5,1
-//	fake_deck[4] = int_to_card(5);//6,1
-	//4-of-a-kind
-	fake_deck[0] = int_to_card(13);//A,1
-	fake_deck[1] = int_to_card(26);//A,2
-	fake_deck[2] = int_to_card(39);//A,3
-	fake_deck[3] = int_to_card(52);//A,4
-	fake_deck[4] = int_to_card(1);//2,1
-	//full-house
+//	int fake_deck[5];
+//	//royal-flush
+////	fake_deck[0] = int_to_card(9);//10,1
+////	fake_deck[1] = int_to_card(10);//J,1
+////	fake_deck[2] = int_to_card(11);//Q,1
+////	fake_deck[3] = int_to_card(12);//K,1
+////	fake_deck[4] = int_to_card(13);//A,1
+//	//straight-flush
+////	fake_deck[0] = int_to_card(1);//2,1
+////	fake_deck[1] = int_to_card(2);//3,1
+////	fake_deck[2] = int_to_card(3);//4,1
+////	fake_deck[3] = int_to_card(4);//5,1
+////	fake_deck[4] = int_to_card(5);//6,1
+//	//4-of-a-kind
 //	fake_deck[0] = int_to_card(13);//A,1
 //	fake_deck[1] = int_to_card(26);//A,2
 //	fake_deck[2] = int_to_card(39);//A,3
-//	fake_deck[3] = int_to_card(9);//10,1
-//	fake_deck[4] = int_to_card(22);//10,2
-	//flush
-//	fake_deck[0] = int_to_card(1);//2,1
-//	fake_deck[1] = int_to_card(2);//3,1
-//	fake_deck[2] = int_to_card(5);//6,1
-//	fake_deck[3] = int_to_card(7);//8,1
-//	fake_deck[4] = int_to_card(9);//10,1
-	//straight
-//	fake_deck[0] = int_to_card(11);//Q,1
-//	fake_deck[1] = int_to_card(23);//J,2
-//	fake_deck[2] = int_to_card(35);//10,3
-//	fake_deck[3] = int_to_card(8);//9,1
-//	fake_deck[4] = int_to_card(20);//8,2
-	//3 of a kind
-//	fake_deck[0] = int_to_card(10);//J,1
-//	fake_deck[1] = int_to_card(23);//J,2
-//	fake_deck[2] = int_to_card(36);//J,3
-//	fake_deck[3] = int_to_card(7);//8,1
-//	fake_deck[4] = int_to_card(21);//9,2
-	//2 pairs
-//	fake_deck[0] = int_to_card(10);//J,1
-//	fake_deck[1] = int_to_card(23);//J,2
-//	fake_deck[2] = int_to_card(39);//A,3
-//	fake_deck[3] = int_to_card(7);//8,1
-//	fake_deck[4] = int_to_card(20);//8,2
-	//pair of jacks
-//	fake_deck[0] = int_to_card(10);//J,1
-//	fake_deck[1] = int_to_card(23);//J,2
-//	fake_deck[2] = int_to_card(27);//2,3
-//	fake_deck[3] = int_to_card(43);//5,4
-//	fake_deck[4] = int_to_card(5);//6,1
-	//pair of 8
-//	fake_deck[0] = int_to_card(7);//8,1
-//	fake_deck[1] = int_to_card(20);//8,2
-//	fake_deck[2] = int_to_card(27);//2,3
-//	fake_deck[3] = int_to_card(43);//5,4
-//	fake_deck[4] = int_to_card(5);//6,1
-	//no-win
-//	fake_deck[0] = int_to_card(2);//3,1
-//	fake_deck[1] = int_to_card(19);//7,2
-//	fake_deck[2] = int_to_card(35);//10,3
-//	fake_deck[3] = int_to_card(43);//5,4
-//	fake_deck[4] = int_to_card(5);//6,1
-	//JOKER TEST
-//	//fake_deck[0] = 131071; // all bits 1 ... NOT WORKING!
-//	fake_deck[0] = 0; // all bits 0
-//	fake_deck[1] = int_to_card(23);//J,2
-//	fake_deck[2] = int_to_card(36);//J,3
-//	fake_deck[3] = int_to_card(7);//8,1
-//	fake_deck[4] = int_to_card(21);//9,2
-	
+//	fake_deck[3] = int_to_card(52);//A,4
+//	fake_deck[4] = int_to_card(1);//2,1
+//	//full-house
+////	fake_deck[0] = int_to_card(13);//A,1
+////	fake_deck[1] = int_to_card(26);//A,2
+////	fake_deck[2] = int_to_card(39);//A,3
+////	fake_deck[3] = int_to_card(9);//10,1
+////	fake_deck[4] = int_to_card(22);//10,2
+//	//flush
+////	fake_deck[0] = int_to_card(1);//2,1
+////	fake_deck[1] = int_to_card(2);//3,1
+////	fake_deck[2] = int_to_card(5);//6,1
+////	fake_deck[3] = int_to_card(7);//8,1
+////	fake_deck[4] = int_to_card(9);//10,1
+//	//straight
+////	fake_deck[0] = int_to_card(11);//Q,1
+////	fake_deck[1] = int_to_card(23);//J,2
+////	fake_deck[2] = int_to_card(35);//10,3
+////	fake_deck[3] = int_to_card(8);//9,1
+////	fake_deck[4] = int_to_card(20);//8,2
+//	//3 of a kind
+////	fake_deck[0] = int_to_card(10);//J,1
+////	fake_deck[1] = int_to_card(23);//J,2
+////	fake_deck[2] = int_to_card(36);//J,3
+////	fake_deck[3] = int_to_card(7);//8,1
+////	fake_deck[4] = int_to_card(21);//9,2
+//	//2 pairs
+////	fake_deck[0] = int_to_card(10);//J,1
+////	fake_deck[1] = int_to_card(23);//J,2
+////	fake_deck[2] = int_to_card(39);//A,3
+////	fake_deck[3] = int_to_card(7);//8,1
+////	fake_deck[4] = int_to_card(20);//8,2
+//	//pair of jacks
+////	fake_deck[0] = int_to_card(10);//J,1
+////	fake_deck[1] = int_to_card(23);//J,2
+////	fake_deck[2] = int_to_card(27);//2,3
+////	fake_deck[3] = int_to_card(43);//5,4
+////	fake_deck[4] = int_to_card(5);//6,1
+//	//pair of 8
+////	fake_deck[0] = int_to_card(7);//8,1
+////	fake_deck[1] = int_to_card(20);//8,2
+////	fake_deck[2] = int_to_card(27);//2,3
+////	fake_deck[3] = int_to_card(43);//5,4
+////	fake_deck[4] = int_to_card(5);//6,1
+//	//no-win
+////	fake_deck[0] = int_to_card(2);//3,1
+////	fake_deck[1] = int_to_card(19);//7,2
+////	fake_deck[2] = int_to_card(35);//10,3
+////	fake_deck[3] = int_to_card(43);//5,4
+////	fake_deck[4] = int_to_card(5);//6,1
+//	//JOKER TEST
+////	//fake_deck[0] = 131071; // all bits 1 ... NOT WORKING!
+////	fake_deck[0] = 0; // all bits 0
+////	fake_deck[1] = int_to_card(23);//J,2
+////	fake_deck[2] = int_to_card(36);//J,3
+////	fake_deck[3] = int_to_card(7);//8,1
+////	fake_deck[4] = int_to_card(21);//9,2
+//	
 
-	int hand[5];
+//	int hand[5];
 
-	Video_Poker test(11);
-	//test.Shuffle();
-
-
-	// set VideoPoker::deck to my custom deck
-	//test.set_deck(fake_deck);
-	cout << "\nSize of fake_deck: " << sizeof(fake_deck)/sizeof(*fake_deck) << endl;
-	test.set_deck(fake_deck, sizeof(fake_deck)/sizeof(*fake_deck));
-
-	//get hand from VideoPoker::deck
-	test.Get_Hand(hand);
+//	Video_Poker test(11);
+//	//test.Shuffle();
 
 
-	cout << "Hand before discard............\n";
-	cout << "Hand[0] -> " << hand[0] << "\n";
-	cout << "Hand[1] -> " << hand[1] << "\n";
-	cout << "Hand[2] -> " << hand[2] << "\n";
-	cout << "Hand[3] -> " << hand[3] << "\n";
-	cout << "Hand[4] -> " << hand[4] << "\n";
-	cout << "...............................\n";
+//	// set VideoPoker::deck to my custom deck
+//	//test.set_deck(fake_deck);
+//	cout << "\nSize of fake_deck: " << sizeof(fake_deck)/sizeof(*fake_deck) << endl;
+//	test.set_deck(fake_deck, sizeof(fake_deck)/sizeof(*fake_deck));
 
-//	cout << "CARD_TO_INT testing-------------\n";
-//	cout << card_to_int(hand[0]) << endl;
-//	cout << card_to_int(hand[1]) << endl;
-//	cout << card_to_int(hand[2]) << endl;
-//	cout << card_to_int(hand[3]) << endl;
-//	cout << card_to_int(hand[4]) << endl;
-//	cout <<"---------------------------------\n";
-
-//	cout << "CONSTRUCT_REMAINING_DECK test---\n";
-//	construct_remaining_deck(1,3,4,7,9);
-//	cout << remainig_card_deck[0] << endl;
-//	cout << remainig_card_deck[1] << endl;
-//	cout << remainig_card_deck[2] << endl;
-//	cout << remainig_card_deck[3] << endl;
-//	cout << remainig_card_deck[4] << endl;
-//	cout << "--------------------------------\n";
-
-	cout << "TOGGLE BIT DETECT test-----------\n";
-	vector<int> positions = detect_bit_toggle(hand);
-	cout << "DONE WITH DETECT...try to print\n";
-	cout << "positions.size() = " << positions.size() << endl; /*BUG*/
-	for (int i = 0; i < positions.size(); i++) {
-		cout << "Pos " << positions[i] << endl;
-	}
-	print_bits(hand[0]);
-	print_bits(hand[1]);
-	print_bits(hand[2]);
-	print_bits(hand[3]);
-	print_bits(hand[4]);
-
-	int dscrd_code = test.Evaluate_Hand(PAY_TABLE);
-	int hand_rank = test.Rank_Hand(hand);
-
-	cout << "----------------------------------------------------------" << endl;
-	cout << "Evaluate hand gives (discard code) -> " << dscrd_code << endl;
-	cout << "----------------------------------------------------------" << endl;
-	cout << "----------------------------------------------------------" << endl;
-	cout << "Rank hand gives (hand \"value\") -> " << hand_rank << endl;
-	cout << "----------------------------------------------------------" << endl;
-	cout << "----------------------------------------------------------" << endl;
-	cout << "Prize given for this hand -> " << PAY_TABLE[hand_rank] << endl;
-	cout << "----------------------------------------------------------" << endl;
-	cout << endl;
-
-	// discard cards ... bit set iff card to be discarded
-	test.Discard(dscrd_code);
-
-	// get new hand (after discard has been performed)
-	test.Get_Hand(hand);
+//	//get hand from VideoPoker::deck
+//	test.Get_Hand(hand);
 
 
-	cout << "Hand after discard.............\n";
-	cout << "Hand[0] -> " << hand[0] << "\n";
-	cout << "Hand[1] -> " << hand[1] << "\n";
-	cout << "Hand[2] -> " << hand[2] << "\n";
-	cout << "Hand[3] -> " << hand[3] << "\n";
-	cout << "Hand[4] -> " << hand[4] << "\n";
-	cout << "...............................\n";
+//	cout << "Hand before discard............\n";
+//	cout << "Hand[0] -> " << hand[0] << "\n";
+//	cout << "Hand[1] -> " << hand[1] << "\n";
+//	cout << "Hand[2] -> " << hand[2] << "\n";
+//	cout << "Hand[3] -> " << hand[3] << "\n";
+//	cout << "Hand[4] -> " << hand[4] << "\n";
+//	cout << "...............................\n";
 
+////	cout << "CARD_TO_INT testing-------------\n";
+////	cout << card_to_int(hand[0]) << endl;
+////	cout << card_to_int(hand[1]) << endl;
+////	cout << card_to_int(hand[2]) << endl;
+////	cout << card_to_int(hand[3]) << endl;
+////	cout << card_to_int(hand[4]) << endl;
+////	cout <<"---------------------------------\n";
 
-	cout << "Tot num of new hands resulting from given discard:\n";
-	cout << "Get_Discard_Total: " << test.Get_Discard_Total(dscrd_code) << endl;
-	cout << ".................................................................\n";
-	cout << "----------------------------------------------------------" << endl;
-	cout << "Evaluate hand gives (discard code) -> " << dscrd_code << endl;
-	cout << "----------------------------------------------------------" << endl;
-	cout << "----------------------------------------------------------" << endl;
-	cout << "Rank hand gives (hand \"value\") -> " << hand_rank << endl;
-	cout << "----------------------------------------------------------" << endl;
-	cout << "----------------------------------------------------------" << endl;
-	cout << "Prize given for this hand -> " << PAY_TABLE[hand_rank] << endl;
-	cout << "----------------------------------------------------------" << endl;
-	int PRIZE = PAY_TABLE[hand_rank];
-	//if (PRIZE > 0) {cout << "drhghlshdgiahiadghiahdghahghw";}
-	cout << endl;
+////	cout << "CONSTRUCT_REMAINING_DECK test---\n";
+////	construct_remaining_deck(1,3,4,7,9);
+////	cout << remainig_card_deck[0] << endl;
+////	cout << remainig_card_deck[1] << endl;
+////	cout << remainig_card_deck[2] << endl;
+////	cout << remainig_card_deck[3] << endl;
+////	cout << remainig_card_deck[4] << endl;
+////	cout << "--------------------------------\n";
 
-//	//TEST COUNT HIGH BIT FUNCTION
-//	cout << "High bits: " << test.count_high_bits((2 << 31) - 1) << endl; 
-
-//	//DETECT TOGLE BIT TEST
-//	cout << "Detect toggle bit: " << test.detect_togle(3, 15, 31) << endl;
-
-//	//PRINT BIT REPRESENTATION TEST
-//	for (int i = 1; i < 53; i++) {
-//		test.print_bits(card_to_int(i));
+//	cout << "TOGGLE BIT DETECT test-----------\n";
+//	vector<int> positions = detect_bit_toggle(hand);
+//	cout << "DONE WITH DETECT...try to print\n";
+//	cout << "positions.size() = " << positions.size() << endl; /*BUG*/
+//	for (int i = 0; i < positions.size(); i++) {
+//		cout << "Pos " << positions[i] << endl;
 //	}
-//	test.print_bits(4111); // 4111 is A-2-3-4-5 (STRAIGHT), but is not countinus run of 1 (high bits)
-//	test.print_bits(((2 << 13) - 1)); //mask for value test
-//	test.print_bits(((2 << 17) - 1) ^ ((2 << 13) - 1)); // mask for suite test
+//	print_bits(hand[0]);
+//	print_bits(hand[1]);
+//	print_bits(hand[2]);
+//	print_bits(hand[3]);
+//	print_bits(hand[4]);
+
+//	int dscrd_code = test.Evaluate_Hand(PAY_TABLE);
+//	int hand_rank = test.Rank_Hand(hand);
+
+//	cout << "----------------------------------------------------------" << endl;
+//	cout << "Evaluate hand gives (discard code) -> " << dscrd_code << endl;
+//	cout << "----------------------------------------------------------" << endl;
+//	cout << "----------------------------------------------------------" << endl;
+//	cout << "Rank hand gives (hand \"value\") -> " << hand_rank << endl;
+//	cout << "----------------------------------------------------------" << endl;
+//	cout << "----------------------------------------------------------" << endl;
+//	cout << "Prize given for this hand -> " << PAY_TABLE[hand_rank] << endl;
+//	cout << "----------------------------------------------------------" << endl;
+//	cout << endl;
+
+//	//TEST MZ_Rank_hand
+//	cout << "MZ_Rank_hand: " << test.MZ_Rank_hand(hand) << endl << endl;
+
+//	// discard cards ... bit set iff card to be discarded
+//	test.Discard(dscrd_code);
+
+//	// get new hand (after discard has been performed)
+//	test.Get_Hand(hand);
+
+
+//	cout << "Hand after discard.............\n";
+//	cout << "Hand[0] -> " << hand[0] << "\n";
+//	cout << "Hand[1] -> " << hand[1] << "\n";
+//	cout << "Hand[2] -> " << hand[2] << "\n";
+//	cout << "Hand[3] -> " << hand[3] << "\n";
+//	cout << "Hand[4] -> " << hand[4] << "\n";
+//	cout << "...............................\n";
+
+
+//	cout << "Tot num of new hands resulting from given discard:\n";
+//	cout << "Get_Discard_Total: " << test.Get_Discard_Total(dscrd_code) << endl;
+//	cout << ".................................................................\n";
+//	cout << "----------------------------------------------------------" << endl;
+//	cout << "Evaluate hand gives (discard code) -> " << dscrd_code << endl;
+//	cout << "----------------------------------------------------------" << endl;
+//	cout << "----------------------------------------------------------" << endl;
+//	cout << "Rank hand gives (hand \"value\") -> " << hand_rank << endl;
+//	cout << "----------------------------------------------------------" << endl;
+//	cout << "----------------------------------------------------------" << endl;
+//	cout << "Prize given for this hand -> " << PAY_TABLE[hand_rank] << endl;
+//	cout << "----------------------------------------------------------" << endl;
+//	int PRIZE = PAY_TABLE[hand_rank];
+//	//if (PRIZE > 0) {cout << "drhghlshdgiahiadghiahdghahghw";}
+//	cout << endl;
+
+
+////	//TEST COUNT HIGH BIT FUNCTION
+////	cout << "High bits: " << test.count_high_bits((2 << 31) - 1) << endl; 
+
+////	//DETECT TOGLE BIT TEST
+////	cout << "Detect toggle bit: " << test.detect_togle(3, 15, 31) << endl;
+
+////	//PRINT BIT REPRESENTATION TEST
+////	for (int i = 1; i < 53; i++) {
+////		test.print_bits(card_to_int(i));
+////	}
+////	test.print_bits(4111); // 4111 is A-2-3-4-5 (STRAIGHT), but is not countinus run of 1 (high bits)
+////	test.print_bits(((2 << 13) - 1)); //mask for value test
+////	test.print_bits(((2 << 17) - 1) ^ ((2 << 13) - 1)); // mask for suite test
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //// DEBUG FROM HERE ON...............................................
