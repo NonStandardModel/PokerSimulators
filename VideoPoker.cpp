@@ -297,24 +297,68 @@ void Video_Poker::print_bits(int x){
 	std::cout << std::endl;
 }
 
-//long long Video_Poker::hand_to_64bit(const int hand[]) {
-//	long long result = 0;
-//	char suite_num = 0;
-//	for (int i = 0; i < 5; i++) {
-//		switch ((hand[i] & mask_suite) >> 13) {
-//			case 1:	suite_num = 1;
+long long Video_Poker::hand_to_64bit(const int hand[]) {
+	int value; // value of card: 2,3,4,...,10,11 = J,12 = Q,13 = K, 14 = A
+	int suite; // suite: 1,2,3,4
+	long long result = 0;
+
+	int mask_value = ((1 << 13) - 1); // MOVE OUT
+	int mask_suite = ((1 << 17) - 1) ^ ((1 << 13) - 1); // MOVE OUT
+
+	for (int i = 0; i < 5; i++) {
+		switch (hand[i] & mask_value) {
+			case 1:	value = 2;
+				break;
+			case 2:	value = 3;
+				break;
+			case 4:	value = 4;
+				break;
+			case 8:	value = 5;
+				break;
+			case 16:	value = 6;
+				break;
+			case 32:	value = 7;
+				break;
+			case 64:	value = 8;
+				break;
+			case 128:	value = 9;
+				break;
+			case 256:	value = 10;
+				break;
+			case 512:	value = 11;
+				break;
+			case 1024:	value = 12;
+				break;
+			case 2048:	value = 13;
+				break;
+			case 4096:	value = 14;
+				break;
+//			default:	value = 15; // JOKER
 //				break;
-//			case 2:	suite_num = 2;
-//				break;
-//			case 4:	suite_num = 3;
-//				break;
-//			case 8:	suite_num = 4;
-//				break;
-//		}
-//		result |= ((hand[i] & mask_value) << suite_num); // NOT OK ... find another way!
+		}
+		switch (hand[i] & mask_suite) {
+			case 8192: suite = 1;  // suite 1
+				break;
+			case 16384: suite = 2; // suite 2
+				break;
+			case 32768: suite = 3; // suite 3
+				break;
+			case 65536: suite = 4; // suite 4
+				break;
+		}
+		result += (1ULL << (4*(value - 2) + (suite - 1))); // NOT OK...WILL NOT SHIFT BITS FOR > 32 bits .. FIXED
+	}
+
+//	//DEBUG
+//	for (int i = 0; i < 64; i++) {
+//		if (i % 4 == 0) {std::cout << "|";}
+//		if ((result >> i) & 0x01 == 0x01) {std::cout << 1;}
+//		else {std::cout << 0;}
 //	}
-//	return result;
-//}
+//	//std::cout << " <-- hand_to_64bit result\n";
+
+	return result;
+}
 
 
 int Video_Poker::MZ_Rank_hand(const int hand[]) {
