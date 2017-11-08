@@ -26,6 +26,9 @@
 // added by MZ
 #include <iostream>
 # include <vector>
+#include <algorithm>
+#include <random>
+#include <chrono>
 //using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -448,6 +451,11 @@ int Video_Poker::MZ_Rank_hand(const int hand[]) {
 		//case 1: // JOKER COMBOS?
 	}
 		
+}
+
+void Video_Poker::MZ_Card_Mixxer(const int deck[], int* start, int* end) {
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	shuffle (start, end, std::default_random_engine(seed));
 }
 
 //vector<int> Video_Poker::detect_bit_toggle(int hand[]) {

@@ -100,6 +100,8 @@ public:
 	bool detect_togle(int x, int y, int position);
 	void print_bits(int x);
 	int MZ_Rank_hand(const int hand[]);
+	long long hand_to_64bit(const int hand[]);
+	void MZ_Card_Mixxer(const int deck[], int* start, int* end);
 
 //	vector<int> detect_bit_toggle(int hand[]);
 ///////////////////////////////////////////////////////////////////////////////////////////////////
