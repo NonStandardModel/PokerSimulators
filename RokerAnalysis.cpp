@@ -319,10 +319,10 @@ int main() {
 						if (RANK != RANK_MZ) {
 							for (int i = 0; i < 5; i++) {
 								cout << HAND[i] << " ";
-								log_file << card_to_int(HAND[i]) << " ";
+								//log_file << card_to_int(HAND[i]) << " ";
 							}
 							cout << RANK << " ... " << RANK_MZ << endl;
-							log_file << RANK << " ... " << RANK_MZ << "\n";
+							//log_file << RANK << " ... " << RANK_MZ << "\n";
 						}
 						PRIZE = PAY_TABLE[RANK];
 						totPrize += PRIZE;

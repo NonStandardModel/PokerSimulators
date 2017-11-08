@@ -297,6 +297,25 @@ void Video_Poker::print_bits(int x){
 	std::cout << std::endl;
 }
 
+//long long Video_Poker::hand_to_64bit(const int hand[]) {
+//	long long result = 0;
+//	char suite_num = 0;
+//	for (int i = 0; i < 5; i++) {
+//		switch ((hand[i] & mask_suite) >> 13) {
+//			case 1:	suite_num = 1;
+//				break;
+//			case 2:	suite_num = 2;
+//				break;
+//			case 4:	suite_num = 3;
+//				break;
+//			case 8:	suite_num = 4;
+//				break;
+//		}
+//		result |= ((hand[i] & mask_value) << suite_num); // NOT OK ... find another way!
+//	}
+//	return result;
+//}
+
 
 int Video_Poker::MZ_Rank_hand(const int hand[]) {
 
@@ -312,31 +331,16 @@ int Video_Poker::MZ_Rank_hand(const int hand[]) {
 	    ROYAL_FLUSH = 9; // MOVE ALL OF THIS OUT
 
 	int mask_MIN_PAIR = ((1 << 13) - 1) ^ ((1 << 9) - 1); // MOVE THIS OUT
-//	std::cout << "mask_MIN_PAIR bits...................................\n";
-//	print_bits(mask_MIN_PAIR);
 
 	//int rank = 0; // for future use...if I need to save all posible ranks and select the best one to return...
 
 	int mask_value = ((1 << 13) - 1); // MOVE THIS OUT so it is not done each time
-//	std::cout << "mask_value bits...................................\n";
-//	print_bits(mask_value);
 	int mask_suite = ((1 << 17) - 1) ^ ((1 << 13) - 1); // MOVE THIS OUT
-//	std::cout << "mask_suite bits...................................\n";
-//	print_bits(mask_suite);
 	int OR = hand[0] | hand[1] | hand[2] | hand[3] | hand[4];
-//	std::cout << " OR print bits..................\n";
-//	print_bits(OR);
 	int XOR = hand[0] ^ hand[1] ^ hand[2] ^ hand[3] ^ hand[4];
 	
 	int hand_suits = count_high_bits(OR & mask_suite);
-//	std::cout << "OR & mask_suite print bist..............\n";
-//	print_bits(OR & mask_suite);
 	int hand_values = count_high_bits(OR & mask_value);
-//	std::cout << "OR & mask_value print bist..............\n";
-//	print_bits(OR & mask_value);
-
-//	std::cout << "hand suites: " << hand_suits << std::endl;
-//	std::cout << "hand values: " << hand_values << std::endl;
 
 	/// make sure that the correct rank is returned (best rank)... for now it isn't important, but leter this can cause strange "bugs"
 	switch (OR & mask_value) {
@@ -391,9 +395,11 @@ int Video_Poker::MZ_Rank_hand(const int hand[]) {
 		case 2: // FULL-HOUSE or POKER
 		// if there is any hand subset of 4 cards that have the same bit high in value part
 		// we have a poker ... otherwise it is full-house
+			int count = 0;
 			for (int i = 0; i < 5; i++) {
-				if (count_high_bits((OR ^ hand[i]) & mask_value) == 1) {return POKER;} // BUG ... FULL-HOUSE are recognised as POKER (ex. 3-4-3-4-3)
+				if ((XOR & mask_value) & hand[i]) {count++;} // BUG ... FULL-HOUSE are recognised as POKER (ex. 3-4-3-4-3) .. FIXED!
 			}
+			if (count == 1) {return POKER;}
 			return FULL;
 		//case 1: // JOKER COMBOS?
 	}
