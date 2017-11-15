@@ -25,10 +25,11 @@
 
 // added by MZ
 #include <iostream>
-# include <vector>
+#include <vector>
 #include <algorithm>
 #include <random>
 #include <chrono>
+
 //using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,6 +258,13 @@ void Video_Poker::swap(int i, int j) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // added part (by MZ)
+
+// INITIALIZE DECK WITH ONE JOKER
+	for (int cards = 0, suit = 0; suit < 4; suit++)             // initialize deck with standard 52 cards
+		for (int rank = 2; rank <= 14; rank++, cards++)
+			deck[cards] = (1 << (rank - 2)) | (1 << 13 << suit);
+	deck_w_joker[52] = (1 << 17); // set Joker as last card with 1 high bit on place 18
+
 //void Video_Poker::set_deck(int* my_deck) { // THIS IS NOT WORKING
 //	for (int idx = 0; idx < sizeof(my_deck)/sizeof(*my_deck); idx++) {
 //		deck[idx] = my_deck[idx];
@@ -364,25 +372,28 @@ long long Video_Poker::hand_to_64bit(const int hand[]) {
 }
 
 
-int Video_Poker::MZ_Rank_hand(const int hand[]) {
+int Video_Poker::MZ_Rank_hand(const int hand[], bool Joker = false) {
 
-	int NO_WIN = 0,
-	    ONE_PAIR = 1,
-	    TWO_PAIR =  2,
-	    TRIS = 3,
-	    STRAIGHT = 4,
-	    FLUSH = 5,
-	    FULL = 6, 
-	    POKER = 7,
-	    STRAIGHT_FLUSH = 8,
-	    ROYAL_FLUSH = 9; // MOVE ALL OF THIS OUT
+//	int NO_WIN = 0,
+//	    ONE_PAIR = 1,
+//	    TWO_PAIR =  2,
+//	    TRIS = 3,
+//	    STRAIGHT = 4,
+//	    FLUSH = 5,
+//	    FULL = 6, 
+//	    POKER = 7,
+//	    STRAIGHT_FLUSH = 8,
+//	    ROYAL_FLUSH = 9; // MOVE ALL OF THIS OUT
+//
+//	int WILD_ROYAL_FLUSH = 111111; // Testing...
+//	int FIVE_OF_KIND = 111111; // Testing...
 
-	int mask_MIN_PAIR = ((1 << 13) - 1) ^ ((1 << 9) - 1); // MOVE THIS OUT
+//	int mask_MIN_PAIR = ((1 << 13) - 1) ^ ((1 << 9) - 1); // MOVE THIS OUT
 
-	//int rank = 0; // for future use...if I need to save all posible ranks and select the best one to return...
+//	//int rank = 0; // for future use...if I need to save all posible ranks and select the best one to return...
 
-	int mask_value = ((1 << 13) - 1); // MOVE THIS OUT so it is not done each time
-	int mask_suite = ((1 << 17) - 1) ^ ((1 << 13) - 1); // MOVE THIS OUT
+//	int mask_value = ((1 << 13) - 1); // MOVE THIS OUT so it is not done each time
+//	int mask_suite = ((1 << 17) - 1) ^ ((1 << 13) - 1); // MOVE THIS OUT
 	int OR = hand[0] | hand[1] | hand[2] | hand[3] | hand[4];
 	int XOR = hand[0] ^ hand[1] ^ hand[2] ^ hand[3] ^ hand[4];
 	
@@ -390,72 +401,245 @@ int Video_Poker::MZ_Rank_hand(const int hand[]) {
 	int hand_values = count_high_bits(OR & mask_value);
 
 	/// make sure that the correct rank is returned (best rank)... for now it isn't important, but leter this can cause strange "bugs"
-	switch (OR & mask_value) {
-		case 31:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 2-3-4-5-6
-				else {return STRAIGHT;}
-				break;
-		case 62:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 3-4-5-6-7
-				else {return STRAIGHT;}
-				break;
-		case 124:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 4-5-6-7-8
-				else {return STRAIGHT;}
-				break;
-		case 248:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 5-6-7-8-9
-				else {return STRAIGHT;}
-				break;
-		case 496:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 6-7-8-9-10
-				else {return STRAIGHT;}
-				break;
-		case 992:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 7-8-9-10-J
-				else {return STRAIGHT;}
-				break;
-		case 1984:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 8-9-10-J-Q
-				else {return STRAIGHT;}
-				break;
-		case 3968:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 9-10-J-Q-K
-				else {return STRAIGHT;}
-				break;
-		case 7936:	if (hand_suits == 1) {return ROYAL_FLUSH;} // 10-J-Q-K-A
-				else {return STRAIGHT;}
-				break;
-		case 4111:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // A-2-3-4-5
-				else {return STRAIGHT;}
-				break;
-		default:	if (hand_suits == 1) {return FLUSH;} // if we have only one suite and is none of the above -> it must be FLUSH
-				break;
-	}
+	if (Joker) {
+		int mask_remove_joker = ((1 << 17) - 1);
+		int hand_suits = count_high_bits(OR & mask_suite & mask_remove_joker);
+		int hand_values = count_high_bits(OR & mask_value & mask_remove_joker);
 
-	switch (hand_values) {
-		case 5:	return NO_WIN; // NO-WIN or STRAIGHT or FLUSH ... flush and straight are covered above
-			break;
-		case 4: if (((OR ^ XOR) & mask_MIN_PAIR) > 0) {return ONE_PAIR;} // 1-PAIR ... BUG ... how to check if 1-PAIR has sufficient rank (Jacks or Better)? ... FIXED!
-			//print_bits((OR ^ XOR) & mask_MIN_PAIR);
-			break;
-		case 3: for (int c1 = 0; c1 < 3; c1++) { // 2-PAIR or TRIS
-				for (int c2 = c1 + 1; c2 < 4; c2++) {
-					for (int c3 = c2 + 1; c3 < 5; c3++) {
-						if (count_high_bits((hand[c1] | hand[c2] | hand[c3]) & mask_value) == 1) {return TRIS;}
+		///PRIZES HAVE TO BE ORDERED BY SIZE LATER...
+		switch (OR & mask_value) {
+			// TODO take care of flushes and straights here
+			// we have to check if there are 4 different values in hand in any window of size 5 values
+			// we need function to count high bits in interval start_bit - stop_bit
+			// MOVE THIS OUT AND OVERLOAD ORIGINAL count_high_bits() function
+			int count_interval_highs(int x, int start_bit = 0, int stop_bit = 8*sizeof(x)) {
+				int counter = 0;
+				for (int i = start_bit; i < stop_bit; i++) {
+					if ((x >> i) & 0x01) {
+						counter++;
 					}
 				}
+				return counter;
 			}
-			return TWO_PAIR;
-		case 2: // FULL-HOUSE or POKER
-		// if there is any hand subset of 4 cards that have the same bit high in value part
-		// we have a poker ... otherwise it is full-house
-			int count = 0;
-			for (int i = 0; i < 5; i++) {
-				if ((XOR & mask_value) & hand[i]) {count++;} // BUG ... FULL-HOUSE are recognised as POKER (ex. 3-4-3-4-3) .. FIXED!
+			// MOVE
+			bool joker_straight = false;
+			for (int window_start = 0; window_start < 9; window_start++) { // 9 (card 10) + 5 cards = 13 (ace)
+				if count_interval_highs(OR & mask_value, window_start, window_start + 5) == 4 {
+					joker_straight = true;
+					break;
+				}
 			}
-			if (count == 1) {return POKER;}
-			return FULL;
-		//case 1: // JOKER COMBOS?
+
+			if (joker_straight) {
+				if (hand_suits == 1) {return WILD_ROYAL_FLUSH;}
+				return WILD_STRAIGHT;	
+			}
+///////// FROM TO THE OTHER MARKED LINE IS SAME AS IF WE HAVE NO JOKER...later should be easy to merge to one fuction //
+			case 31:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 2-3-4-5-6
+					else {return STRAIGHT;}
+					break;
+			case 62:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 3-4-5-6-7
+					else {return STRAIGHT;}
+					break;
+			case 124:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 4-5-6-7-8
+					else {return STRAIGHT;}
+					break;
+			case 248:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 5-6-7-8-9
+					else {return STRAIGHT;}
+					break;
+			case 496:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 6-7-8-9-10
+					else {return STRAIGHT;}
+					break;
+			case 992:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 7-8-9-10-J
+					else {return STRAIGHT;}
+					break;
+			case 1984:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 8-9-10-J-Q
+					else {return STRAIGHT;}
+					break;
+			case 3968:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 9-10-J-Q-K
+					else {return STRAIGHT;}
+					break;
+			case 7936:	if (hand_suits == 1) {return ROYAL_FLUSH;} // 10-J-Q-K-A
+					else {return STRAIGHT;}
+					break;
+			case 4111:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // A-2-3-4-5
+					else {return STRAIGHT;}
+					break;
+			default:	if (hand_suits == 1) {return FLUSH;}
+					break;
+///////// UNTIL HERE //////////////////////////////////////////////////////////////////////////////////////////////////
+		}
+		switch (hand_values) {
+			case 5:	return NO_WIN; // NO_WIN or STRAIGHT or FLUSH..straight and flush have to be covered above!! DO NOT MOVE THIS
+				break;
+			//TODO: ONE_PAIR, TWO_PAIR, TRIS, FULL, POKER
+			// we know that there is Joker in the hand, so there must be wild-pair..all we need to do is check
+			// the rank of HIGH CARD...but anyhow, ONE_PAIR is usually not payed in VP with Jokers
+			// if we have a Joker and 2 equal values and 2 different values we have TRIS or TWO_PAIR, return higher
+			// if we have a Joker and 3 equal values and any other card we have POKER or FULL, return higher prizes
+			// if we have a Joker and 2 equal and 2 other equal values we have FULL
+			// if we have a Joker and 4 equal values we have FIVE_OF_KIND
+			
+
+			case 1: return FIVE_OF_KIND;
+				break;
+		}
+
+	} else {
+		int hand_suits = count_high_bits(OR & mask_suite);
+		int hand_values = count_high_bits(OR & mask_value);
+		switch (OR & mask_value) {
+			case 31:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 2-3-4-5-6
+					else {return STRAIGHT;}
+					break;
+			case 62:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 3-4-5-6-7
+					else {return STRAIGHT;}
+					break;
+			case 124:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 4-5-6-7-8
+					else {return STRAIGHT;}
+					break;
+			case 248:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 5-6-7-8-9
+					else {return STRAIGHT;}
+					break;
+			case 496:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 6-7-8-9-10
+					else {return STRAIGHT;}
+					break;
+			case 992:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 7-8-9-10-J
+					else {return STRAIGHT;}
+					break;
+			case 1984:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 8-9-10-J-Q
+					else {return STRAIGHT;}
+					break;
+			case 3968:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // 9-10-J-Q-K
+					else {return STRAIGHT;}
+					break;
+			case 7936:	if (hand_suits == 1) {return ROYAL_FLUSH;} // 10-J-Q-K-A
+					else {return STRAIGHT;}
+					break;
+			case 4111:	if (hand_suits == 1) {return STRAIGHT_FLUSH;} // A-2-3-4-5
+					else {return STRAIGHT;}
+					break;
+			default:	if (hand_suits == 1) {return FLUSH;} // if we have only one suite and is none of the above -> it must be FLUSH
+					break;
+		}
+	
+		switch (hand_values) {
+			case 5:	return NO_WIN; // NO-WIN or STRAIGHT or FLUSH ... flush and straight are covered above
+				break;
+			case 4: if (((OR ^ XOR) & mask_MIN_PAIR) > 0) {return ONE_PAIR;} // 1-PAIR ... BUG ... how to check if 1-PAIR has sufficient rank (Jacks or Better)? ... FIXED!
+				//print_bits((OR ^ XOR) & mask_MIN_PAIR);
+				break;
+			case 3: for (int c1 = 0; c1 < 3; c1++) { // 2-PAIR or TRIS
+					for (int c2 = c1 + 1; c2 < 4; c2++) {
+						for (int c3 = c2 + 1; c3 < 5; c3++) {
+							if (count_high_bits((hand[c1] | hand[c2] | hand[c3]) & mask_value) == 1) {return TRIS;}
+						}
+					}
+				}
+				return TWO_PAIR;
+			case 2: // FULL-HOUSE or POKER
+			// if there is any hand subset of 4 cards that have the same bit high in value part
+			// we have a poker ... otherwise it is full-house
+				int count = 0;
+				for (int i = 0; i < 5; i++) {
+					if ((XOR & mask_value) & hand[i]) {count++;} // BUG ... FULL-HOUSE are recognised as POKER (ex. 	3-4-3-4-3) .. FIXED!
+				}
+				if (count == 1) {return POKER;}
+				return FULL;
+			//case 1: // JOKER COMBOS?
+		}
 	}
-		
+	
 }
 
-void Video_Poker::MZ_Card_Mixxer(const int deck[], int* start, int* end) {
+// Shuffle card deck... MZ_Card_Mixxer(deck, &deck[0], &deck[52]);
+//void Video_Poker::MZ_Card_Mixxer(const int deck[], int* start, int* end) {
+//	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+//	shuffle (start, end, std::default_random_engine(seed));
+//}
+void Video_Poker::MZ_Card_Mixxer() {
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-	shuffle (start, end, std::default_random_engine(seed));
+	shuffle (&deck[0], &deck[52], std::default_random_engine(seed));
+}
+
+
+// I will try to optimize a bit..
+// if rank is ROYAL_FLUSH -> discard_code = 0
+// if rank is POKER -> discard_code = 0
+// if rank is FULL -> discard_code = 0
+// if rank is TRIS -> discard_code = {3,5,9,17,6,10,18,12,20,24}
+int Video_Poker::Evaluate_Hand_2(const int pay_table[], int rank) {
+    int discard_code;
+	if (rank == FULL) {
+		std::cout << "Time save FULL\n";
+		return 0;}
+	if (rank == POKER) {
+		std::cout << "Time save POKER\n";
+		return 0;}
+	if (rank == ROYAL_FLUSH) {
+		std::cout << "Time save ROYAL_FLUSH\n";
+		return 0;}
+
+    for (discard_code = 0; discard_code < 31; discard_code++)   // clear count table
+        for (int rank = High_Card; rank <= Royal_Flush; rank++)
+            hand_counts[discard_code][rank] = 0;
+
+    hand_counts[0][Rank_Hand(deck)]++;                          // holding all 5 is easy
+
+// As described above, we enumerate hands for all discards except discarding all 5, which would
+// take the most time.
+
+    for (discard_code = 1; discard_code < 31; discard_code++) {
+        int hand[5],
+            discards[5],
+            num_discards = 0;
+
+        for (int i = 0, temp = discard_code; i < 5; i++, temp >>= 1) {
+            hand[i] = deck[i];                                  // re-copy current hand
+            if (temp&1)                                         // determine discard positions
+                discards[num_discards++] = i;
+        }
+
+        int draw[5] = {5, 6, 7, 8, 9},                          // don't draw cards from current
+            change = 0;                                         // hand
+        do {
+            while (change < num_discards) {                     // draw another subset
+                hand[discards[change]] = deck[draw[change]];
+                change++;
+            }
+            hand_counts[discard_code][Rank_Hand(hand)]++;       // and evaluate resulting hand
+            
+            int j, n = 52;                                      // compute next subset
+            change = num_discards;
+            while ((j = draw[--change]) == --n && change);
+            if (j++ == n) j = 0;
+            int i = change;
+            while (i < 5) draw[i++] = j++;
+        } while (change || draw[0]);
+    }
+
+    for (int rank = High_Card; rank <= Royal_Flush; rank++) {   // subtract results so far from
+        int total = rank_totals[rank];                          // rank totals for discarding 5
+        for (discard_code = 0; discard_code < 31; discard_code++)
+            total -= hand_counts[discard_code][rank];
+        hand_counts[31][rank] = total;
+    }
+
+    for (discard_code = 0; discard_code < 32; discard_code++) { // compute expected returns
+        returns[discard_code] = 0;
+        for (int rank = High_Card; rank <= Royal_Flush; rank++)
+            returns[discard_code] += (double)pay_table[rank]*hand_counts[discard_code][rank];
+        returns[discard_code] /= discard_totals[discard_code];
+    }
+
+    int best_discard = 0;                                       // find discard maximizing expected
+    double max_return = returns[0];                             // return
+    for (discard_code = 1; discard_code < 32; discard_code++)
+        if (returns[discard_code] > max_return) {
+            max_return = returns[discard_code];
+            best_discard = discard_code;
+        }
+    return best_discard;
 }
 
 //vector<int> Video_Poker::detect_bit_toggle(int hand[]) {

@@ -92,6 +92,10 @@ public:
 
     int Get_Rank_Total(int rank);
 
+//Next 2 lines have been moved here to public part while testing for FLUSH dicard code bug...
+//void swap(int i, int j);
+//int deck[52];
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // added part (by MZ)
 //	void set_deck(int* my_deck);
@@ -101,8 +105,9 @@ public:
 	void print_bits(int x);
 	int MZ_Rank_hand(const int hand[]);
 	long long hand_to_64bit(const int hand[]);
-	void MZ_Card_Mixxer(const int deck[], int* start, int* end);
-
+//	void MZ_Card_Mixxer(const int deck[], int* start, int* end);
+	void MZ_Card_Mixxer();
+	int Evaluate_Hand_2(const int pay_table[], int rank);
 //	vector<int> detect_bit_toggle(int hand[]);
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -116,4 +121,27 @@ private:
     double returns[32];
 
     void swap(int i, int j);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// added part (by MZ)
+	int deck_w_joker[53];
+
+	int	NO_WIN = 0,
+		ONE_PAIR = 1,
+		TWO_PAIR =  2,
+		TRIS = 3,
+		STRAIGHT = 4,
+		FLUSH = 5,
+		FULL = 6, 
+		POKER = 7,
+		STRAIGHT_FLUSH = 8,
+		ROYAL_FLUSH = 9; 
+	int	WILD_ROYAL_FLUSH = 111111; // Testing...
+	int	FIVE_OF_KIND = 22222; // Testing...
+	int	WILD_STRAIGHT = 333333; // Testing...
+
+
+	int mask_MIN_PAIR = ((1 << 13) - 1) ^ ((1 << 9) - 1); 
+	int mask_value = ((1 << 13) - 1);
+	int mask_suite = ((1 << 17) - 1) ^ ((1 << 13) - 1); 
 };
